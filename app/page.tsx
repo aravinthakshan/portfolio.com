@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { LoadingIcon } from '@/components/loading-icon'
 import { NavigationHeader } from '@/components/navigation-header'
@@ -14,7 +14,12 @@ const GlobeSection = dynamic(
 )
 
 export default function Home() {
+  const navBirdSlotRef = useRef<HTMLSpanElement>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [navBirdVisible, setNavBirdVisible] = useState(false)
+  const handleBirdHandoff = useCallback(() => {
+    setNavBirdVisible(true)
+  }, [])
 
   useEffect(() => {
     // Simulate loading time (2.5 seconds)
@@ -33,8 +38,14 @@ export default function Home() {
     <>
       {/* Fade-in animation for content */}
       <div className="animate-fade-in">
-        <NavigationHeader />
-        <HomepageHero />
+        <NavigationHeader
+          showNavBird={navBirdVisible}
+          birdSlotRef={navBirdSlotRef}
+        />
+        <HomepageHero
+          onBirdHandoff={handleBirdHandoff}
+          birdSlotRef={navBirdSlotRef}
+        />
         <PortfolioSection />
         <GlobeSection />
         <ContactSection />

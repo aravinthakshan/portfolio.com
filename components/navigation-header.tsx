@@ -1,9 +1,19 @@
 'use client'
 
 import { MessageSquare } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { type RefObject, useEffect, useState } from 'react'
 
-export function NavigationHeader() {
+type NavigationHeaderProps = {
+  /** After hero bird assembles, show the mark inline to the right of the name. */
+  showNavBird?: boolean
+  /** Reserved box for the bird — flight animation targets this rect. */
+  birdSlotRef?: RefObject<HTMLSpanElement | null>
+}
+
+export function NavigationHeader({
+  showNavBird = false,
+  birdSlotRef,
+}: NavigationHeaderProps) {
   const [scrollY, setScrollY] = useState(0)
   const [onDark, setOnDark] = useState(false)
 
@@ -49,15 +59,31 @@ export function NavigationHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-10 py-4 md:py-5 flex items-center justify-between gap-3">
-      {/* Logo — only opacity is transitioned; color is switched instantly
-          so it never crossfades through gray when entering the dark section. */}
+      {/* Logo + optional bird mark — same row, shared scroll fade */}
       <div
-        className={`text-xl md:text-3xl font-serif font-bold transition-opacity duration-300 truncate ${
+        className={`flex items-center gap-2 md:gap-3 min-w-0 shrink transition-opacity duration-300 ${
           onDark ? 'text-white' : 'text-foreground'
         }`}
         style={{ opacity: logoOpacity }}
       >
-        aravinthakshan
+        <span className="text-xl md:text-3xl font-serif font-bold truncate">
+          aravinthakshan
+        </span>
+        <span
+          ref={birdSlotRef}
+          className="inline-flex h-20 w-20 sm:h-9 sm:w-9 md:h-10 md:w-10 shrink-0 items-center justify-center"
+          aria-hidden
+        >
+          {showNavBird && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src="/trace/owl-reference.svg"
+              alt=""
+              className="h-full w-full object-contain opacity-95"
+              aria-hidden
+            />
+          )}
+        </span>
       </div>
 
       {/* Action buttons */}

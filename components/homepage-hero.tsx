@@ -1,8 +1,18 @@
-export function HomepageHero() {
+'use client'
+
+import { type RefObject } from 'react'
+import { HeroVectorAssembly } from '@/components/hero-vector-assembly'
+
+type HomepageHeroProps = {
+  onBirdHandoff?: () => void
+  birdSlotRef?: RefObject<HTMLSpanElement | null>
+}
+
+export function HomepageHero({ onBirdHandoff, birdSlotRef }: HomepageHeroProps) {
   return (
     <main className="relative min-h-screen bg-background overflow-hidden flex items-end">
-      {/* Huge background name */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      {/* Huge name — sits under the assembled bird where they overlap */}
+      <div className="absolute inset-0 z-[4] flex items-center justify-center pointer-events-none select-none">
         <h1
           aria-hidden
           className="font-black tracking-tighter text-foreground leading-none whitespace-nowrap"
@@ -14,6 +24,11 @@ export function HomepageHero() {
           aravinth
         </h1>
       </div>
+
+      <HeroVectorAssembly
+        onHandoffComplete={onBirdHandoff}
+        flightTargetRef={birdSlotRef}
+      />
 
       {/* Foreground tagline */}
       <div className="relative z-10 px-8 pb-16 md:pb-24 w-full">
