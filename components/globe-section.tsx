@@ -251,7 +251,7 @@ export function GlobeSection() {
 
         {/* Overlay content */}
         <div className="relative z-10 h-full px-6 md:px-12 py-20">
-          {/* Vertically-centered heading on the left */}
+          {/* Vertically-centered heading on the left, with remote-experience line directly below */}
           <div className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 max-w-xl">
             <h2
               className="font-semibold leading-[0.95] tracking-tight text-white"
@@ -264,6 +264,9 @@ export function GlobeSection() {
               <br />
               Any codebase.
             </h2>
+            <p className="mt-6 max-w-sm text-sm md:text-base text-neutral-400 leading-snug">
+              2 years of work experience working remotely.
+            </p>
           </div>
 
           {/* Bottom-left: routing through each destination, "based in" on the final one */}
@@ -283,13 +286,6 @@ export function GlobeSection() {
                 · {active.country}
               </span>
             </div>
-          </div>
-
-          {/* Bottom-right: remote experience blurb */}
-          <div className="absolute right-6 md:right-12 bottom-10 text-right">
-            <p className="max-w-xs text-sm md:text-base text-neutral-300 leading-snug">
-              2 Years of work experience working remotely.
-            </p>
           </div>
         </div>
       </div>
