@@ -1,9 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { createRoot, type Root } from 'react-dom/client'
 import * as THREE from 'three'
-import { GlobeTooltip } from './globe-tooltip'
 
 type Location = {
   id: number
@@ -28,7 +26,7 @@ const GEOJSON_URL =
 
 // Timing for one full hop animation (ms)
 const HOP_DURATION = 2000
-const HOP_DWELL = 1600 // time the ring/tooltip stays after landing
+const HOP_DWELL = 1600 // time the pulsing ring stays after landing
 const CYCLE = HOP_DURATION + HOP_DWELL
 
 export function GlobeSection() {
@@ -49,8 +47,6 @@ export function GlobeSection() {
   const [arcsData, setArcsData] = useState<any[]>([])
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [ringsData, setRingsData] = useState<any[]>([])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [htmlElementsData, setHtmlElementsData] = useState<any[]>([])
   const [dims, setDims] = useState({ width: 0, height: 0 })
 
   const total = locations.length
@@ -124,7 +120,6 @@ export function GlobeSection() {
 
   // Animate from previous → current location each time activeIndex changes.
   const prevIndexRef = useRef<number>(0)
-  const rootsRef = useRef<Root[]>([])
   useEffect(() => {
     if (!GlobeRef.current) return
     const from = locations[prevIndexRef.current]
@@ -141,7 +136,6 @@ export function GlobeSection() {
       },
     ])
     setRingsData([])
-    setHtmlElementsData([])
 
     GlobeRef.current.pointOfView(
       { lat: to.lat, lng: to.lng, altitude: 2.2 },
@@ -158,12 +152,6 @@ export function GlobeSection() {
           repeatPeriod: 1200,
         },
       ])
-
-      const container = document.createElement('div')
-      const root = createRoot(container)
-      rootsRef.current.push(root)
-      root.render(<GlobeTooltip from={from} to={to} />)
-      setHtmlElementsData([{ lat: to.lat, lng: to.lng, element: container }])
     }, HOP_DURATION)
 
     const t2 = setTimeout(() => {
@@ -176,20 +164,6 @@ export function GlobeSection() {
       clearTimeout(t2)
     }
   }, [activeIndex])
-
-  // Tear down any lingering React roots on unmount.
-  useEffect(() => {
-    const roots = rootsRef.current
-    return () => {
-      roots.forEach((r) => {
-        try {
-          r.unmount()
-        } catch {
-          // ignore
-        }
-      })
-    }
-  }, [])
 
   const globeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 })
   const active = locations[activeIndex]
@@ -229,13 +203,6 @@ export function GlobeSection() {
               ringMaxRadius={() => 4}
               ringPropagationSpeed={() => 3}
               ringRepeatPeriod={() => 1400}
-              htmlElementsData={htmlElementsData}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              htmlLat={(d: any) => d.lat}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              htmlLng={(d: any) => d.lng}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              htmlElement={(d: any) => d.element}
             />
           </div>
         )}
