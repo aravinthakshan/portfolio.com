@@ -6,7 +6,8 @@ type Point = [number, number]
 type Tri = { color: string; points: [Point, Point, Point] }
 
 const STORAGE_KEY = 'owl-trace-v1'
-const REF_IMAGE = '/trace/owl.png'
+/** Low-poly bird reference (grayscale SVG) — lives in public/trace/ */
+const REF_IMAGE = '/trace/owl-reference.svg'
 
 function rgbToHex(r: number, g: number, b: number) {
   return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
