@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"], variable: '--font-sans' });
@@ -8,9 +7,8 @@ const _geistMono = Geist_Mono({ subsets: ["latin"], variable: '--font-mono' });
 const _playfair = Playfair_Display({ subsets: ["latin"], variable: '--font-serif' });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'aravinthakshan',
+  description: 'Machine Learning Engineer, Researcher, and Software Developer.',
   icons: {
     icon: [
       {
@@ -39,7 +37,6 @@ export default function RootLayout({
     <html lang="en" className={`${_geist.variable} ${_geistMono.variable} ${_playfair.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

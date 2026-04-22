@@ -7,7 +7,7 @@ export function HomepageHero() {
           aria-hidden
           className="font-black tracking-tighter text-foreground leading-none whitespace-nowrap"
           style={{
-            fontSize: 'clamp(12rem, 38vw, 40rem)',
+            fontSize: 'clamp(3rem, 26vw, 40rem)',
             letterSpacing: '-0.06em',
           }}
         >

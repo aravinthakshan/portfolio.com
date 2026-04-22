@@ -26,7 +26,7 @@ export function NavigationHeader() {
 
         {/* Menu pill */}
         <button
-          className="group flex items-center gap-2 pl-5 pr-1.5 py-1.5 rounded-full bg-black text-white transition-transform duration-300 ease-out hover:scale-110 active:scale-105"
+          className="group flex items-center gap-2 pl-5 pr-1.5 py-1.5 rounded-full bg-black text-white border-2 border-white/50 transition-transform duration-300 ease-out hover:scale-110 active:scale-105"
         >
           <span className="text-[11px] md:text-xs font-bold tracking-[0.14em] uppercase">
             Menu

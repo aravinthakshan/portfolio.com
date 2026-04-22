@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 interface PortfolioItem {
   id: number
-  year: string
+  index: string
   title: string
   subtitle: string
   tags: string[]
@@ -17,59 +17,59 @@ interface PortfolioItem {
 const portfolioItems: PortfolioItem[] = [
   {
     id: 1,
-    year: '2025',
-    title: 'SmartPlan AI',
-    subtitle: 'Mischka LLC',
-    tags: ['Product Design', 'WebFlow Development'],
-    industry: ['Artificial Intelligence', 'SaaS'],
-    client: 'SmartPlan AI',
+    index: '01',
+    title: 'Developer',
+    subtitle: 'Full-stack & Systems',
+    tags: ['Web Apps', 'APIs', 'Systems', 'Open Source'],
+    industry: ['Software', 'Developer Tools'],
+    client: 'Independent & Teams',
     description:
-      'SmartPlan AI is an AI-powered planning platform. We designed the product interface and built a high-performance website to clearly communicate its value.',
+      'Shipping full-stack web apps, tooling, and systems code. Comfortable from the metal up to the UI, with a bias toward small, sharp, maintainable codebases.',
     image:
-      'https://images.unsplash.com/photo-1607502537688-fdf3fc1b0cdc?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1600&h=1000&fit=crop',
   },
   {
     id: 2,
-    year: '2024',
-    title: 'Creative HUB',
-    subtitle: 'ALTHEA',
-    tags: ['Web Design', 'UI UX Design', 'Website Development'],
-    industry: ['Creative Industry', 'Art & Culture'],
-    client: 'Creative HUB',
+    index: '02',
+    title: 'AI Researcher',
+    subtitle: 'Vision · Language · Multimodal',
+    tags: ['Deep Learning', 'Computer Vision', 'NLP', 'Multimodal'],
+    industry: ['Research', 'Artificial Intelligence'],
+    client: 'Academic Labs',
     description:
-      'A dynamic Webflow website for CreativeHub, designed to showcase creative work, exhibitions, and collaborations through a modern editorial digital experience.',
+      'Exploring novel architectures, training regimes, and applications across vision, language, and multimodal systems. Paper-driven, experiment-heavy.',
     image:
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&h=1000&fit=crop',
   },
   {
     id: 3,
-    year: '2023',
-    title: 'Netability',
-    subtitle: 'Lunar Luxe',
-    tags: ['Web Design', 'Development'],
-    industry: ['Technology', 'Software'],
-    client: 'Netability',
+    index: '03',
+    title: 'ML Engineer',
+    subtitle: 'Pipelines · Serving · Scale',
+    tags: ['MLOps', 'Model Serving', 'Pipelines', 'Inference'],
+    industry: ['Machine Learning', 'MLOps'],
+    client: 'Product Teams',
     description:
-      'Building sophisticated digital experiences that connect brands with their audiences through carefully considered design systems.',
+      'Taking models from notebook to production — data pipelines, training infrastructure, evaluation, and low-latency inference at scale.',
     image:
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=1000&fit=crop',
   },
   {
     id: 4,
-    year: '2022',
-    title: 'Mayerfeld',
-    subtitle: 'Vision Summit',
-    tags: ['Strategic Design', 'Development'],
-    industry: ['Enterprise', 'Solutions'],
-    client: 'Mayerfeld',
+    index: '04',
+    title: 'And More',
+    subtitle: 'Math · Design · Writing',
+    tags: ['Mathematics', 'Design', 'Writing', 'Music'],
+    industry: ['Exploratory', 'Creative'],
+    client: 'Myself',
     description:
-      'Enterprise solutions for modern business challenges and digital transformation initiatives at scale.',
+      'Beyond the titles — a long-standing obsession with mathematics, and side-pursuits in design, writing, and anything that sharpens the craft.',
     image:
-      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=1600&h=1000&fit=crop',
   },
 ]
 
-const ITEM_HEIGHT = 88 // px — vertical spacing between names in the list
+const ITEM_HEIGHT = 200 // px — vertical slot per name; big enough to give breathing room
 
 export function PortfolioSection() {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -108,10 +108,28 @@ export function PortfolioSection() {
       style={{ height: `${total * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="grid grid-cols-2 h-full gap-12 px-12 py-20">
-          {/* LEFT — image + fixed-position detail rows */}
-          <div className="flex flex-col">
-            {/* Image — crossfade */}
+        {/* Index label — bottom-right of the whole section */}
+        <div className="absolute bottom-10 right-12 z-10 text-xs uppercase tracking-[0.3em] text-neutral-500 tabular-nums">
+          <FadeSwap
+            value={active.index}
+            render={() => (
+              <div className="flex items-center gap-6">
+                <span className="text-neutral-500 normal-case tracking-wide">
+                  {active.subtitle}
+                </span>
+                <span>
+                  <span className="text-neutral-300">{active.index}</span>
+                  <span className="mx-2 text-neutral-700">/</span>
+                  <span>{String(total).padStart(2, '0')}</span>
+                </span>
+              </div>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] h-full gap-24 px-12 py-20">
+          {/* LEFT — image + stable detail rows */}
+          <div className="flex flex-col min-w-0">
             <div className="relative w-full aspect-[16/10] rounded-md overflow-hidden bg-neutral-900">
               {portfolioItems.map((item, i) => (
                 <img
@@ -125,7 +143,6 @@ export function PortfolioSection() {
               ))}
             </div>
 
-            {/* Detail rows — structure never moves, only values swap */}
             <div className="mt-10 divide-y divide-neutral-800 border-t border-neutral-800">
               <DetailRow label="Overview">
                 <FadeSwap value={active.description} />
@@ -158,35 +175,22 @@ export function PortfolioSection() {
                   )}
                 />
               </DetailRow>
-              <DetailRow label="Client">
+              <DetailRow label="Role">
                 <FadeSwap value={active.client} />
               </DetailRow>
-              <div className="py-5">
-                <button className="text-neutral-200 text-sm tracking-wide hover:text-white transition-colors">
-                  Explore the case →
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* RIGHT — vertical name list that slides so active stays centered */}
-          <div className="relative overflow-hidden">
-            {/* Year indicator — sits in fixed slot above active name */}
-            <div
-              className="absolute left-0 right-0 text-sm text-neutral-400 tabular-nums"
-              style={{
-                top: `calc(50% - ${ITEM_HEIGHT * 0.85}px)`,
-              }}
-            >
-              <FadeSwap value={active.year} />
-            </div>
-
-            {/* Sliding list */}
+          {/* RIGHT — big sliding name list */}
+          <div className="relative overflow-hidden min-w-0">
+            {/* Sliding stack of names */}
             <div
               className="absolute left-0 right-0 transition-transform duration-700 ease-out"
               style={{
                 top: '50%',
-                transform: `translateY(${-activeIndex * ITEM_HEIGHT - ITEM_HEIGHT / 2}px)`,
+                transform: `translateY(${
+                  -activeIndex * ITEM_HEIGHT - ITEM_HEIGHT / 2
+                }px)`,
               }}
             >
               {portfolioItems.map((item, i) => {
@@ -198,11 +202,13 @@ export function PortfolioSection() {
                     style={{ height: `${ITEM_HEIGHT}px` }}
                   >
                     <h2
-                      className={`font-sans font-semibold leading-none transition-all duration-700 ease-out ${
-                        isActive
-                          ? 'text-white text-7xl'
-                          : 'text-neutral-600 text-6xl'
+                      className={`font-sans font-semibold leading-[0.9] tracking-tight transition-all duration-700 ease-out whitespace-nowrap ${
+                        isActive ? 'text-white' : 'text-neutral-700'
                       }`}
+                      style={{
+                        fontSize: isActive ? '9rem' : '6rem',
+                        letterSpacing: '-0.03em',
+                      }}
                     >
                       {item.title}
                     </h2>
@@ -241,16 +247,11 @@ function DetailRow({
       <div className="text-xs uppercase tracking-widest text-neutral-500">
         {label}
       </div>
-      <div className="text-sm text-neutral-200 leading-relaxed">
-        {children}
-      </div>
+      <div className="text-sm text-neutral-200 leading-relaxed">{children}</div>
     </div>
   )
 }
 
-// Cross-fades between values so detail rows stay pixel-stable;
-// the container is keyed on `value` so React remounts it and the
-// CSS animation replays on every change.
 function FadeSwap({
   value,
   render,
