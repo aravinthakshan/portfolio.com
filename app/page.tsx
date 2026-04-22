@@ -6,6 +6,7 @@ import { LoadingIcon } from '@/components/loading-icon'
 import { NavigationHeader } from '@/components/navigation-header'
 import { HomepageHero } from '@/components/homepage-hero'
 import { PortfolioSection } from '@/components/portfolio-section'
+import { ContactSection } from '@/components/contact-section'
 
 const GlobeSection = dynamic(
   () => import('@/components/globe-section').then((m) => m.GlobeSection),
@@ -36,6 +37,7 @@ export default function Home() {
         <HomepageHero />
         <PortfolioSection />
         <GlobeSection />
+        <ContactSection />
       </div>
     </>
   )

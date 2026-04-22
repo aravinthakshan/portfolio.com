@@ -8,12 +8,26 @@ export function NavigationHeader() {
   const [onDark, setOnDark] = useState(false)
 
   useEffect(() => {
+    // The header flips to a dark-theme palette whenever a section explicitly
+    // marked `data-theme="dark"` is crossing the top of the viewport. Light
+    // sections (hero, contact) leave the header in its default dark-on-light
+    // palette.
+    const HEADER_LINE = 60
+
     const handle = () => {
       const y = window.scrollY
       setScrollY(y)
-      // Only flip to the dark-section theme once the black portfolio actually
-      // fills the top of the viewport (i.e. we've fully scrolled past the hero).
-      setOnDark(y >= window.innerHeight - 80)
+      const darkSections = document.querySelectorAll<HTMLElement>(
+        '[data-theme="dark"]'
+      )
+      let anyDark = false
+      darkSections.forEach((el) => {
+        const rect = el.getBoundingClientRect()
+        if (rect.top <= HEADER_LINE && rect.bottom > HEADER_LINE) {
+          anyDark = true
+        }
+      })
+      setOnDark(anyDark)
     }
     handle()
     window.addEventListener('scroll', handle, { passive: true })
@@ -27,6 +41,11 @@ export function NavigationHeader() {
   // In the hero: fade the logo as the user scrolls (it "disappears").
   // On the dark section: bring it back fully visible, colored white.
   const logoOpacity = onDark ? 1 : Math.max(0, 1 - scrollY / 220)
+
+  const scrollToContact = () => {
+    const el = document.getElementById('contact')
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-10 py-4 md:py-5 flex items-center justify-between gap-3">
@@ -43,9 +62,12 @@ export function NavigationHeader() {
 
       {/* Action buttons */}
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
-        {/* Chat pill */}
+        {/* Chat pill — jumps to the contact section */}
         <button
-          className={`group flex items-center gap-1.5 md:gap-2 pl-3.5 md:pl-5 pr-1 md:pr-1.5 py-1 md:py-1.5 rounded-full transition-[background-color,color,border-color,transform] duration-300 ease-out hover:scale-110 active:scale-105 ${
+          type="button"
+          onClick={scrollToContact}
+          aria-label="Jump to contact section"
+          className={`group flex items-center gap-1.5 md:gap-2 pl-3.5 md:pl-5 pr-1 md:pr-1.5 py-1 md:py-1.5 rounded-full transition-[background-color,color,border-color,transform] duration-300 ease-out hover:scale-110 active:scale-105 cursor-pointer ${
             onDark
               ? 'bg-white/10 text-white border-2 border-white/40 backdrop-blur-sm'
               : 'bg-[#e7e9ec] text-foreground border-2 border-transparent'

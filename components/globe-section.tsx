@@ -25,9 +25,12 @@ const GEOJSON_URL =
   'https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson'
 
 // Timing for one full hop animation (ms)
-const HOP_DURATION = 2000
-const HOP_DWELL = 1600 // time the pulsing ring stays after landing
+const HOP_DURATION = 1100
+const HOP_DWELL = 650 // time the pulsing ring stays after landing
 const CYCLE = HOP_DURATION + HOP_DWELL
+// Short delay before the very first hop fires once the section comes into view,
+// so the animation feels immediate instead of waiting a full cycle.
+const FIRST_HOP_DELAY = 250
 
 export function GlobeSection() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +86,7 @@ export function GlobeSection() {
   }, [])
 
   // Observe when the section is visible; only animate while it is.
+  // Low threshold so the animation kicks in as the section starts entering.
   useEffect(() => {
     const el = sectionRef.current
     if (!el) return
@@ -90,7 +94,7 @@ export function GlobeSection() {
       (entries) => {
         entries.forEach((e) => setInView(e.isIntersecting))
       },
-      { threshold: 0.35 }
+      { threshold: 0.2 }
     )
     io.observe(el)
     return () => io.disconnect()
@@ -110,12 +114,20 @@ export function GlobeSection() {
   }, [Globe])
 
   // Auto-advance the active index while the section is in view.
+  // Fire the first hop almost immediately, then pace the rest on CYCLE.
   useEffect(() => {
     if (!inView) return
-    const id = setInterval(() => {
+    let intervalId: ReturnType<typeof setInterval> | undefined
+    const kickoff = setTimeout(() => {
       setActiveIndex((i) => (i + 1) % total)
-    }, CYCLE)
-    return () => clearInterval(id)
+      intervalId = setInterval(() => {
+        setActiveIndex((i) => (i + 1) % total)
+      }, CYCLE)
+    }, FIRST_HOP_DELAY)
+    return () => {
+      clearTimeout(kickoff)
+      if (intervalId) clearInterval(intervalId)
+    }
   }, [inView, total])
 
   // Animate from previous → current location each time activeIndex changes.
@@ -169,10 +181,19 @@ export function GlobeSection() {
   const active = locations[activeIndex]
 
   return (
-    <div ref={sectionRef} className="relative bg-black text-white h-screen">
+    <div
+      ref={sectionRef}
+      data-theme="dark"
+      className="relative bg-black text-white"
+      style={{ height: '200vh' }}
+    >
+      {/* Sticky inner — pins the globe while the wrapper provides 200vh of
+          scroll so the section has real scroll resistance and the hand-off
+          from the portfolio feels continuous (pinned → pinned) instead of a
+          short flyby. */}
       <div
         ref={containerRef}
-        className="relative h-screen w-full overflow-hidden"
+        className="sticky top-0 h-screen w-full overflow-hidden"
       >
         {/* Globe canvas */}
         {Globe && dims.width > 0 && (
@@ -196,13 +217,13 @@ export function GlobeSection() {
               arcStroke={0.6}
               arcDashLength={0.9}
               arcDashGap={0.1}
-              arcDashAnimateTime={1600}
+              arcDashAnimateTime={900}
               arcAltitudeAutoScale={0.4}
               ringsData={ringsData}
               ringColor={() => 'rgba(255,255,255,0.85)'}
               ringMaxRadius={() => 4}
-              ringPropagationSpeed={() => 3}
-              ringRepeatPeriod={() => 1400}
+              ringPropagationSpeed={() => 4}
+              ringRepeatPeriod={() => 900}
             />
           </div>
         )}

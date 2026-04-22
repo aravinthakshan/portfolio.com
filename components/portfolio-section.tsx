@@ -76,6 +76,7 @@ export function PortfolioSection() {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [isDesktop, setIsDesktop] = useState(true)
+  const [isActiveSection, setIsActiveSection] = useState(false)
   const total = portfolioItems.length
 
   useEffect(() => {
@@ -98,6 +99,11 @@ export function PortfolioSection() {
       )
       const idx = Math.min(total - 1, Math.floor(scrolled / vh))
       setActiveIndex(idx)
+
+      // Portfolio is the "dominant" section only while its sticky child is
+      // actively pinned and occupying most of the viewport. Outside that
+      // window (hero above, globe/contact below), the overlays should vanish.
+      setIsActiveSection(rect.top <= 0 && rect.bottom > vh * 0.5)
     }
 
     handleScroll()
@@ -115,12 +121,19 @@ export function PortfolioSection() {
   return (
     <div
       ref={wrapperRef}
+      data-theme="dark"
       className="relative bg-black text-white"
       style={{ height: `${total * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Index label — bottom-right, consistent across breakpoints */}
-        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-12 z-10 text-[10px] md:text-xs uppercase tracking-[0.25em] md:tracking-[0.3em] text-neutral-500 tabular-nums">
+        {/* Index label — bottom-right, consistent across breakpoints.
+            Fades out when the portfolio is no longer the active section so it
+            never clashes with the nav on other pages. */}
+        <div
+          className={`absolute bottom-6 right-6 md:bottom-10 md:right-12 z-10 text-[10px] md:text-xs uppercase tracking-[0.25em] md:tracking-[0.3em] text-neutral-500 tabular-nums transition-opacity duration-300 ${
+            isActiveSection ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
           <FadeSwap
             value={active.index}
             render={() => (
@@ -139,7 +152,11 @@ export function PortfolioSection() {
         </div>
 
         {/* Progress rail — horizontal on mobile (top), vertical on desktop (right) */}
-        <div className="absolute md:hidden top-24 left-1/2 -translate-x-1/2 flex flex-row gap-1.5 z-10">
+        <div
+          className={`absolute md:hidden top-24 left-1/2 -translate-x-1/2 flex flex-row gap-1.5 z-10 transition-opacity duration-300 ${
+            isActiveSection ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
           {portfolioItems.map((_, i) => (
             <span
               key={i}
