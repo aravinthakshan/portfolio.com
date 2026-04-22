@@ -1,10 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { LoadingIcon } from '@/components/loading-icon'
 import { NavigationHeader } from '@/components/navigation-header'
 import { HomepageHero } from '@/components/homepage-hero'
 import { PortfolioSection } from '@/components/portfolio-section'
+
+const GlobeSection = dynamic(
+  () => import('@/components/globe-section').then((m) => m.GlobeSection),
+  { ssr: false }
+)
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -29,6 +35,7 @@ export default function Home() {
         <NavigationHeader />
         <HomepageHero />
         <PortfolioSection />
+        <GlobeSection />
       </div>
     </>
   )

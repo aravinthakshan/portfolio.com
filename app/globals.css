@@ -160,6 +160,13 @@
   }
 }
 
+@keyframes fade-in-out {
+  0% { opacity: 0; transform: translateY(-4px); }
+  15% { opacity: 1; transform: translateY(-6px); }
+  85% { opacity: 1; transform: translateY(-6px); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
 @layer utilities {
   .animate-orb-spin {
     animation: orb-spin 3s linear infinite;
@@ -171,5 +178,9 @@
 
   .animate-fade-in {
     animation: fade-in 0.5s ease-in;
+  }
+
+  .animate-fade-in-out {
+    animation: fade-in-out 2.8s ease-in-out forwards;
   }
 }

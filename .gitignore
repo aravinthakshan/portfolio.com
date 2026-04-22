@@ -13,3 +13,6 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# Local reference material not part of the app
+ref/
