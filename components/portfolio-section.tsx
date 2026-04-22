@@ -69,12 +69,22 @@ const portfolioItems: PortfolioItem[] = [
   },
 ]
 
-const ITEM_HEIGHT = 200 // px — vertical slot per name; big enough to give breathing room
+const ITEM_HEIGHT_DESKTOP = 200
+const ITEM_HEIGHT_MOBILE = 88
 
 export function PortfolioSection() {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [isDesktop, setIsDesktop] = useState(true)
   const total = portfolioItems.length
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)')
+    const apply = () => setIsDesktop(mql.matches)
+    apply()
+    mql.addEventListener('change', apply)
+    return () => mql.removeEventListener('change', apply)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,6 +110,7 @@ export function PortfolioSection() {
   }, [total])
 
   const active = portfolioItems[activeIndex]
+  const itemH = isDesktop ? ITEM_HEIGHT_DESKTOP : ITEM_HEIGHT_MOBILE
 
   return (
     <div
@@ -108,18 +119,18 @@ export function PortfolioSection() {
       style={{ height: `${total * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Index label — bottom-right of the whole section */}
-        <div className="absolute bottom-10 right-12 z-10 text-xs uppercase tracking-[0.3em] text-neutral-500 tabular-nums">
+        {/* Index label — bottom-right, consistent across breakpoints */}
+        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-12 z-10 text-[10px] md:text-xs uppercase tracking-[0.25em] md:tracking-[0.3em] text-neutral-500 tabular-nums">
           <FadeSwap
             value={active.index}
             render={() => (
-              <div className="flex items-center gap-6">
-                <span className="text-neutral-500 normal-case tracking-wide">
+              <div className="flex items-center gap-3 md:gap-6">
+                <span className="hidden sm:inline text-neutral-500 normal-case tracking-wide">
                   {active.subtitle}
                 </span>
                 <span>
                   <span className="text-neutral-300">{active.index}</span>
-                  <span className="mx-2 text-neutral-700">/</span>
+                  <span className="mx-1.5 md:mx-2 text-neutral-700">/</span>
                   <span>{String(total).padStart(2, '0')}</span>
                 </span>
               </div>
@@ -127,8 +138,21 @@ export function PortfolioSection() {
           />
         </div>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] h-full gap-24 px-12 py-20">
-          {/* LEFT — image + stable detail rows */}
+        {/* Progress rail — horizontal on mobile (top), vertical on desktop (right) */}
+        <div className="absolute md:hidden top-24 left-1/2 -translate-x-1/2 flex flex-row gap-1.5 z-10">
+          {portfolioItems.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-neutral-700'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* ───── DESKTOP LAYOUT ───── */}
+        <div className="hidden md:grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] h-full gap-24 px-12 py-20">
+          {/* Left: image + detail rows */}
           <div className="flex flex-col min-w-0">
             <div className="relative w-full aspect-[16/10] rounded-md overflow-hidden bg-neutral-900">
               {portfolioItems.map((item, i) => (
@@ -181,15 +205,14 @@ export function PortfolioSection() {
             </div>
           </div>
 
-          {/* RIGHT — big sliding name list */}
+          {/* Right: sliding name stack */}
           <div className="relative overflow-hidden min-w-0">
-            {/* Sliding stack of names */}
             <div
               className="absolute left-0 right-0 transition-transform duration-700 ease-out"
               style={{
                 top: '50%',
                 transform: `translateY(${
-                  -activeIndex * ITEM_HEIGHT - ITEM_HEIGHT / 2
+                  -activeIndex * itemH - itemH / 2
                 }px)`,
               }}
             >
@@ -199,7 +222,7 @@ export function PortfolioSection() {
                   <div
                     key={item.id}
                     className="flex items-center"
-                    style={{ height: `${ITEM_HEIGHT}px` }}
+                    style={{ height: `${itemH}px` }}
                   >
                     <h2
                       className={`font-sans font-semibold leading-[0.9] tracking-tight transition-all duration-700 ease-out whitespace-nowrap ${
@@ -217,7 +240,6 @@ export function PortfolioSection() {
               })}
             </div>
 
-            {/* Progress rail */}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2">
               {portfolioItems.map((_, i) => (
                 <span
@@ -228,6 +250,80 @@ export function PortfolioSection() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* ───── MOBILE LAYOUT ───── */}
+        <div className="md:hidden flex flex-col h-full px-6 pt-32 pb-20">
+          {/* Big active title */}
+          <div className="relative h-24 mb-6">
+            <FadeSwap
+              value={active.title}
+              render={() => (
+                <div>
+                  <h2
+                    className="font-sans font-semibold leading-[0.95] tracking-tight text-white"
+                    style={{
+                      fontSize: 'clamp(2.75rem, 11vw, 4.5rem)',
+                      letterSpacing: '-0.03em',
+                    }}
+                  >
+                    {active.title}
+                  </h2>
+                  <p className="mt-2 text-xs uppercase tracking-[0.2em] text-neutral-500">
+                    {active.subtitle}
+                  </p>
+                </div>
+              )}
+            />
+          </div>
+
+          {/* Image */}
+          <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden bg-neutral-900">
+            {portfolioItems.map((item, i) => (
+              <img
+                key={item.id}
+                src={item.image}
+                alt={item.title}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out ${
+                  i === activeIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Description */}
+          <div className="mt-6 border-t border-neutral-800 pt-5">
+            <div className="text-[10px] uppercase tracking-[0.25em] text-neutral-500 mb-2">
+              Overview
+            </div>
+            <FadeSwap
+              value={active.description}
+              render={() => (
+                <p className="text-sm text-neutral-200 leading-relaxed">
+                  {active.description}
+                </p>
+              )}
+            />
+          </div>
+
+          {/* Tags row */}
+          <div className="mt-5 flex flex-wrap gap-1.5">
+            <FadeSwap
+              value={active.tags.join(',')}
+              render={() => (
+                <>
+                  {active.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="text-[10px] uppercase tracking-wider text-neutral-300 border border-neutral-700 rounded-full px-2.5 py-1"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </>
+              )}
+            />
           </div>
         </div>
       </div>
