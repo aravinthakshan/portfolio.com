@@ -21,20 +21,26 @@ const ContactSchema = z.object({
   message: z.string().trim().min(1, 'Message is required').max(5000),
 })
 
-const SUBJECT = 'Got your message — aravinthakshan'
+const SUBJECT_ACK = 'Thanks — I got your message'
+
+function subjectNotification(name: string) {
+  return `New message from ${name} — aravinthakshan`
+}
 
 function getEnv() {
   const apiKey = process.env.RESEND_API_KEY
   const from =
     process.env.CONTACT_FROM_EMAIL ?? 'aravinthakshan <onboarding@resend.dev>'
   const to = process.env.CONTACT_TO_EMAIL
+  const replyToInbox =
+    process.env.CONTACT_REPLY_TO_EMAIL?.trim() || process.env.CONTACT_TO_EMAIL
   const messageIdHost =
     process.env.CONTACT_MESSAGE_ID_HOST ?? 'aravinthakshan.dev'
-  return { apiKey, from, to, messageIdHost }
+  return { apiKey, from, to, replyToInbox, messageIdHost }
 }
 
 export async function POST(req: Request) {
-  const { apiKey, from, to, messageIdHost } = getEnv()
+  const { apiKey, from, to, replyToInbox, messageIdHost } = getEnv()
   if (!apiKey || !to) {
     console.error('[contact] missing RESEND_API_KEY or CONTACT_TO_EMAIL')
     return NextResponse.json(
@@ -68,10 +74,10 @@ export async function POST(req: Request) {
   const { name, email, company, message } = parsed.data
   const resend = new Resend(apiKey)
 
-  // One conversation id; both emails share threading state via Message-ID +
-  // References. When the recipient replies to the notification, the reply
-  // chain includes the auto-ack's Message-ID, so the sender's mail client
-  // groups everything into a single thread on their side too.
+  // One conversation id; threading uses Message-ID + In-Reply-To + References.
+  // Subjects differ (friendlier ack vs actionable notification) but Gmail
+  // still groups the thread via References. Auto-ack Reply-To is the inbox
+  // you read so replies to hello@… reach you without inbound MX on the domain.
   const conversationId = crypto.randomUUID()
   const ackMessageId = `<ack.${conversationId}@${messageIdHost}>`
   const notifMessageId = `<notif.${conversationId}@${messageIdHost}>`
@@ -80,7 +86,8 @@ export async function POST(req: Request) {
     const ack = await resend.emails.send({
       from,
       to: [email],
-      subject: SUBJECT,
+      subject: SUBJECT_ACK,
+      replyTo: replyToInbox,
       react: <ContactAcknowledgment name={name} message={message} />,
       headers: {
         'Message-ID': ackMessageId,
@@ -98,7 +105,7 @@ export async function POST(req: Request) {
       from,
       to: [to],
       replyTo: email,
-      subject: SUBJECT,
+      subject: subjectNotification(name),
       react: (
         <ContactNotification
           name={name}
