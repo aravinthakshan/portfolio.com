@@ -70,7 +70,7 @@ export function NavigationHeader() {
         aravinthakshan
       </div>
 
-      {/* Action buttons */}
+      {/* Action button */}
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
         {/* Chat pill — jumps to the contact section */}
         <button
