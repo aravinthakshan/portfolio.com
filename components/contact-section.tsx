@@ -3,7 +3,7 @@
 import { Calendar, Check, Clock, Github, Linkedin, Lock, Mail } from 'lucide-react'
 import { FormEvent, useState } from 'react'
 
-type Status = 'idle' | 'sending' | 'sent'
+type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 const bullets = [
   'Direct reply — no assistants, no routing.',
@@ -27,14 +27,43 @@ const socials: { icon: typeof Linkedin; href: string; label: string }[] = [
 
 export function ContactSection() {
   const [status, setStatus] = useState<Status>('idle')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (status !== 'idle') return
+    if (status === 'sending' || status === 'sent') return
+
+    const form = e.currentTarget
+    const fd = new FormData(form)
+    const payload = {
+      name: String(fd.get('name') ?? '').trim(),
+      email: String(fd.get('email') ?? '').trim(),
+      company: String(fd.get('company') ?? '').trim() || null,
+      message: String(fd.get('message') ?? '').trim(),
+    }
+
     setStatus('sending')
-    // Placeholder — wire up to your email service (Resend, Formspree, etc.)
-    await new Promise((r) => setTimeout(r, 900))
-    setStatus('sent')
+    setErrorMsg(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error ?? 'Could not send message')
+      }
+      setStatus('sent')
+      form.reset()
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : 'Could not send message',
+      )
+      setStatus('error')
+    }
   }
 
   return (
@@ -195,15 +224,26 @@ export function ContactSection() {
 
           <button
             type="submit"
-            disabled={status !== 'idle'}
+            disabled={status === 'sending' || status === 'sent'}
             className="w-full mt-5 rounded-lg bg-black text-white text-[11px] font-bold tracking-[0.2em] uppercase py-3.5 hover:bg-neutral-800 disabled:bg-neutral-700 disabled:opacity-80 transition-colors"
           >
             {status === 'sent'
               ? "Message sent — I'll get back soon"
               : status === 'sending'
               ? 'Sending…'
+              : status === 'error'
+              ? 'Try again'
               : 'Send message'}
           </button>
+
+          {status === 'error' && errorMsg ? (
+            <p
+              role="alert"
+              className="mt-3 text-[11px] text-red-600 leading-snug"
+            >
+              {errorMsg}
+            </p>
+          ) : null}
 
           <div className="mt-5 flex items-center justify-between text-[11px] text-neutral-500">
             <span className="flex items-center gap-1.5">
