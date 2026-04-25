@@ -59,9 +59,9 @@ export function ContactSection() {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-10 py-24 md:py-32 grid md:grid-cols-2 gap-10 lg:gap-16">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-10 py-24 md:py-32 grid md:grid-cols-2 gap-10 md:gap-12 lg:gap-16">
         {/* ─── Left column ─────────────────────────────────────────────── */}
-        <div className="flex flex-col">
+        <div className="flex flex-col min-w-0">
           <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-4">
             Contact
           </div>
@@ -97,8 +97,9 @@ export function ContactSection() {
             </div>
           </div>
 
-          {/* Bottom-left: socials + book a meeting — always one row */}
-          <div className="mt-10 md:mt-auto pt-10 flex flex-row items-end gap-4 sm:gap-8">
+          {/* Bottom-left: socials + book a meeting — wraps on tight widths so
+              the pill never overlaps the form card on the right. */}
+          <div className="mt-10 md:mt-auto pt-10 flex flex-wrap items-end gap-x-6 gap-y-6 lg:gap-x-8">
             <div className="shrink-0">
               <div className="text-[10px] uppercase tracking-[0.25em] text-neutral-500 mb-3">
                 Find me elsewhere
@@ -119,7 +120,8 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="h-8 w-px bg-neutral-300 shrink-0" />
+            {/* Divider only when there's room for both groups on one line */}
+            <div className="hidden lg:block h-8 w-px bg-neutral-300 shrink-0 self-end mb-1" />
 
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-[0.25em] text-neutral-500 mb-3">
@@ -145,7 +147,7 @@ export function ContactSection() {
         {/* ─── Right column — form card ────────────────────────────────── */}
         <form
           onSubmit={onSubmit}
-          className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)] self-start"
+          className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)] self-start min-w-0"
         >
           <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
             Talk to me
