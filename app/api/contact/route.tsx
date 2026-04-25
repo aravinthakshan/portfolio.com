@@ -28,23 +28,31 @@ function subjectNotification(name: string) {
 }
 
 function getEnv() {
-  const apiKey = process.env.RESEND_API_KEY
+  const apiKey = process.env.RESEND_API_KEY?.trim() || undefined
   const from =
-    process.env.CONTACT_FROM_EMAIL ?? 'aravinthakshan <onboarding@resend.dev>'
-  const to = process.env.CONTACT_TO_EMAIL
+    process.env.CONTACT_FROM_EMAIL?.trim() ||
+    'aravinthakshan <onboarding@resend.dev>'
+  const to = process.env.CONTACT_TO_EMAIL?.trim() || undefined
   const replyToInbox =
-    process.env.CONTACT_REPLY_TO_EMAIL?.trim() || process.env.CONTACT_TO_EMAIL
+    process.env.CONTACT_REPLY_TO_EMAIL?.trim() || to
   const messageIdHost =
-    process.env.CONTACT_MESSAGE_ID_HOST ?? 'aravinthakshan.dev'
+    process.env.CONTACT_MESSAGE_ID_HOST?.trim() || 'aravinthakshan.dev'
   return { apiKey, from, to, replyToInbox, messageIdHost }
 }
 
 export async function POST(req: Request) {
   const { apiKey, from, to, replyToInbox, messageIdHost } = getEnv()
   if (!apiKey || !to) {
-    console.error('[contact] missing RESEND_API_KEY or CONTACT_TO_EMAIL')
+    const missing: string[] = []
+    if (!apiKey) missing.push('RESEND_API_KEY')
+    if (!to) missing.push('CONTACT_TO_EMAIL')
+    console.error('[contact] missing env:', missing.join(', '))
     return NextResponse.json(
-      { ok: false, error: 'Server not configured' },
+      {
+        ok: false,
+        error: 'Server not configured',
+        missing,
+      },
       { status: 500 },
     )
   }
