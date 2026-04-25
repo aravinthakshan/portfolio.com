@@ -27,6 +27,37 @@ function subjectNotification(name: string) {
   return `New message from ${name} — aravinthakshan`
 }
 
+type ResendErrorShape = {
+  statusCode?: number
+  name?: string
+  message?: string
+}
+
+function jsonForResendFailure(
+  step: 'ack' | 'notification',
+  err: ResendErrorShape | null | undefined,
+) {
+  const code = err?.statusCode
+  const hint =
+    code === 401 || code === 403
+      ? 'RESEND_API_KEY is missing, wrong, or not allowed for this environment. Copy a fresh key from Resend → API Keys and redeploy.'
+      : 'Resend rejected the send. Check Vercel logs for the full Resend error (often invalid `from` / domain, or API key).'
+
+  console.error(`[contact] ${step} Resend error:`, err)
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        step === 'ack'
+          ? 'Could not send acknowledgment'
+          : 'Could not send notification',
+      resendStatus: code,
+      hint,
+    },
+    { status: code === 401 || code === 403 ? 500 : 502 },
+  )
+}
+
 function getEnv() {
   const apiKey = process.env.RESEND_API_KEY?.trim() || undefined
   const from =
@@ -102,11 +133,7 @@ export async function POST(req: Request) {
       },
     })
     if (ack.error) {
-      console.error('[contact] auto-ack failed:', ack.error)
-      return NextResponse.json(
-        { ok: false, error: 'Could not send acknowledgment' },
-        { status: 502 },
-      )
+      return jsonForResendFailure('ack', ack.error as ResendErrorShape)
     }
 
     const notif = await resend.emails.send({
@@ -129,13 +156,7 @@ export async function POST(req: Request) {
       },
     })
     if (notif.error) {
-      console.error('[contact] notification failed:', notif.error)
-      // Sender still got their ack, so we report a soft success — but flag
-      // the failure server-side so it is visible in logs.
-      return NextResponse.json(
-        { ok: true, warning: 'Notification delivery delayed' },
-        { status: 200 },
-      )
+      return jsonForResendFailure('notification', notif.error as ResendErrorShape)
     }
 
     return NextResponse.json({ ok: true })
