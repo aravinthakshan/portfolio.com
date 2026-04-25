@@ -227,7 +227,9 @@ export function PortfolioSection() {
             <div
               className="absolute left-0 right-0 pr-14 transition-transform duration-700 ease-out"
               style={{
-                top: '50%',
+                // Slightly above center so titles align better with the left
+                // column; extra lift on short viewports where 50% felt too low.
+                top: 'calc(50% - clamp(1.75rem, 5vh, 3.5rem))',
                 transform: `translateY(${
                   -activeIndex * itemH - itemH / 2
                 }px)`,
@@ -259,7 +261,12 @@ export function PortfolioSection() {
               })}
             </div>
 
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+            <div
+              className="absolute right-0 flex flex-col gap-2 -translate-y-1/2"
+              style={{
+                top: 'calc(50% - clamp(1.75rem, 5vh, 3.5rem))',
+              }}
+            >
               {portfolioItems.map((_, i) => (
                 <span
                   key={i}

@@ -178,7 +178,6 @@ export function GlobeSection() {
   }, [activeIndex])
 
   const globeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 })
-  const active = locations[activeIndex]
 
   return (
     <div
@@ -257,24 +256,23 @@ export function GlobeSection() {
             </p>
           </div>
 
-          {/* Bottom-left: routing through each destination, "based in" on the final one */}
-          <div className="absolute left-6 md:left-12 bottom-10 text-xs uppercase tracking-[0.25em] text-neutral-500">
-            <div key={`label-${active.id}`} className="animate-fade-in">
-              {activeIndex === total - 1
-                ? 'Currently based in'
-                : 'Currently routing to'}
-            </div>
-            <div
-              key={active.id}
-              className="animate-fade-in mt-3 text-white text-2xl md:text-3xl normal-case tracking-tight font-semibold"
-            >
-              {active.city ?? active.country}
-              <span className="text-neutral-500 font-normal">
-                {' '}
-                · {active.country}
-              </span>
-            </div>
-          </div>
+          {/* Bottom-left: static "based in Manipal" — globe still routes through
+              every location for the visual, but the label no longer narrates it. */}
+          {(() => {
+            const home = locations[total - 1]
+            return (
+              <div className="absolute left-6 md:left-12 bottom-10 text-xs uppercase tracking-[0.25em] text-neutral-500">
+                <div>Currently based in</div>
+                <div className="mt-3 text-white text-2xl md:text-3xl normal-case tracking-tight font-semibold">
+                  {home.city ?? home.country}
+                  <span className="text-neutral-500 font-normal">
+                    {' '}
+                    · {home.country}
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>

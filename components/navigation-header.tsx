@@ -4,8 +4,8 @@ import { MessageSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export function NavigationHeader() {
-  const [scrollY, setScrollY] = useState(0)
   const [onDark, setOnDark] = useState(false)
+  const [logoOpacity, setLogoOpacity] = useState(1)
 
   useEffect(() => {
     // The header flips to a dark-theme palette whenever a section explicitly
@@ -13,21 +13,35 @@ export function NavigationHeader() {
     // sections (hero, contact) leave the header in its default dark-on-light
     // palette.
     const HEADER_LINE = 60
+    const FADE_DISTANCE = 220
 
     const handle = () => {
       const y = window.scrollY
-      setScrollY(y)
       const darkSections = document.querySelectorAll<HTMLElement>(
         '[data-theme="dark"]'
       )
       let anyDark = false
-      darkSections.forEach((el) => {
+      let activeDark: HTMLElement | null = null
+      for (const el of darkSections) {
         const rect = el.getBoundingClientRect()
         if (rect.top <= HEADER_LINE && rect.bottom > HEADER_LINE) {
           anyDark = true
+          activeDark = el
         }
-      })
+      }
       setOnDark(anyDark)
+
+      // Hero (light): fade with scrollY. Dark sections (tall wrappers e.g.
+      // portfolio/globe): fade by scroll distance since the section top crossed
+      // the header line — using document Y so it works for multi-vh blocks.
+      if (activeDark) {
+        const topDoc = activeDark.getBoundingClientRect().top + y
+        const engageY = topDoc - HEADER_LINE
+        const delta = y - engageY
+        setLogoOpacity(Math.max(0, 1 - delta / FADE_DISTANCE))
+      } else {
+        setLogoOpacity(Math.max(0, 1 - y / FADE_DISTANCE))
+      }
     }
     handle()
     window.addEventListener('scroll', handle, { passive: true })
@@ -38,10 +52,6 @@ export function NavigationHeader() {
     }
   }, [])
 
-  // In the hero: fade the logo as the user scrolls (it "disappears").
-  // On the dark section: bring it back fully visible, colored white.
-  const logoOpacity = onDark ? 1 : Math.max(0, 1 - scrollY / 220)
-
   const scrollToContact = () => {
     const el = document.getElementById('contact')
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -49,8 +59,8 @@ export function NavigationHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-10 py-4 md:py-5 flex items-center justify-between gap-3">
-      {/* Logo — only opacity is transitioned; color is switched instantly
-          so it never crossfades through gray when entering the dark section. */}
+      {/* Logo — opacity fades while scrolling on light (hero) and on dark
+          sections; color switches instantly with `onDark` so it never grays out. */}
       <div
         className={`text-xl md:text-3xl font-serif font-bold transition-opacity duration-300 truncate ${
           onDark ? 'text-white' : 'text-foreground'
