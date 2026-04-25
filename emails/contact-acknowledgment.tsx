@@ -11,17 +11,18 @@ export function ContactAcknowledgment({ name, message }: Props) {
 
   return (
     <EmailShell
-      preview={`Got your message — I'll get back within 24 hours, ${firstName}.`}
+      preview={`Thanks for reaching out, ${firstName} — I&apos;ll reply within 24 hours.`}
     >
       <Text style={styles.label}>Contact</Text>
-      <Text style={styles.heading}>Got your message.</Text>
+      <Text style={styles.heading}>Thanks — I&apos;ve got your message.</Text>
       <Text style={styles.intro}>
-        Thanks for reaching out, {firstName}. This is just a quick note to
-        confirm your message landed in my inbox — I&apos;ll get back to you
-        personally, usually within 24 hours.
+        Hi {firstName}, thanks for taking the time to write. Your note is in
+        my inbox and I&apos;ll read it properly soon. I reply personally to
+        every message and aim to get back within 24 hours (often sooner).
       </Text>
       <Text style={{ ...styles.intro, color: '#525252' }}>
-        No assistants, no routing — just me on the other end.
+        If anything urgent comes up in the meantime, feel free to reply to this
+        email — it goes straight to me.
       </Text>
 
       <Text style={styles.sectionLabel}>What you sent</Text>
@@ -30,7 +31,7 @@ export function ContactAcknowledgment({ name, message }: Props) {
       </Section>
 
       <Text style={{ ...styles.intro, fontSize: 13, color: '#737373' }}>
-        Replying to this email reaches me directly.
+        Talk soon — aravinthakshan
       </Text>
     </EmailShell>
   )
