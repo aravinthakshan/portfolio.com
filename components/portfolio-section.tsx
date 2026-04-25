@@ -222,10 +222,10 @@ export function PortfolioSection() {
             </div>
           </div>
 
-          {/* Right: sliding name stack */}
-          <div className="relative overflow-hidden min-w-0">
+          {/* Right: sliding name stack — container queries so titles scale with column width */}
+          <div className="relative overflow-hidden min-w-0 [container-type:inline-size]">
             <div
-              className="absolute left-0 right-0 transition-transform duration-700 ease-out"
+              className="absolute left-0 right-0 pr-14 transition-transform duration-700 ease-out"
               style={{
                 top: '50%',
                 transform: `translateY(${
@@ -238,15 +238,17 @@ export function PortfolioSection() {
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center"
+                    className="flex items-center min-w-0"
                     style={{ height: `${itemH}px` }}
                   >
                     <h2
-                      className={`font-sans font-semibold leading-[0.9] tracking-tight transition-all duration-700 ease-out whitespace-nowrap ${
+                      className={`font-sans font-semibold leading-[0.9] tracking-tight transition-all duration-700 ease-out whitespace-nowrap max-w-full min-w-0 ${
                         isActive ? 'text-white' : 'text-neutral-700'
                       }`}
                       style={{
-                        fontSize: isActive ? '9rem' : '6rem',
+                        fontSize: isActive
+                          ? 'clamp(1.75rem, 12.5cqw, 9rem)'
+                          : 'clamp(1.375rem, 8.5cqw, 6rem)',
                         letterSpacing: '-0.03em',
                       }}
                     >
@@ -273,15 +275,16 @@ export function PortfolioSection() {
         {/* ───── MOBILE LAYOUT ───── */}
         <div className="md:hidden flex flex-col h-full px-6 pt-32 pb-20">
           {/* Big active title */}
-          <div className="relative h-24 mb-6">
+          <div className="relative min-h-24 mb-6 min-w-0">
             <FadeSwap
               value={active.title}
               render={() => (
-                <div>
+                <div className="min-w-0 max-w-full">
                   <h2
-                    className="font-sans font-semibold leading-[0.95] tracking-tight text-white"
+                    className="font-sans font-semibold leading-[0.95] tracking-tight text-white max-w-full [overflow-wrap:anywhere]"
                     style={{
-                      fontSize: 'clamp(2.75rem, 11vw, 4.5rem)',
+                      fontSize:
+                        'clamp(1.75rem, calc(0.55rem + 7.5vw), 4.5rem)',
                       letterSpacing: '-0.03em',
                     }}
                   >
