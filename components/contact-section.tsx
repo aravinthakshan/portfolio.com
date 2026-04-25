@@ -128,7 +128,7 @@ export function ContactSection() {
                 Prefer a call?
               </div>
               <a
-                href="https://cal.com/aravinthakshan"
+                href="https://calendar.app.google/fXXwdQZyg9QE1Gyf7"
                 target="_blank"
                 rel="noreferrer"
                 className="group inline-flex items-center gap-1.5 sm:gap-2 pl-3.5 sm:pl-4 pr-1 py-1 rounded-full bg-black text-white border-2 border-black hover:scale-[1.04] active:scale-[1.01] transition-transform"

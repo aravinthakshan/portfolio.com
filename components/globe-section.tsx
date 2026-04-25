@@ -252,7 +252,7 @@ export function GlobeSection() {
               Any codebase.
             </h2>
             <p className="mt-6 max-w-sm text-sm md:text-base text-neutral-400 leading-snug">
-              2 years of work experience working remotely.
+              2 years of experience working remotely.
             </p>
           </div>
 
