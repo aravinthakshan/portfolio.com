@@ -38,36 +38,18 @@ function jsonForResendFailure(
   err: ResendErrorShape | null | undefined,
 ) {
   const code = err?.statusCode
-  const msg = (err?.message ?? '').toLowerCase()
-  let hint: string
-  if (code === 401 || code === 403) {
-    hint =
-      'RESEND_API_KEY is missing, wrong, or not allowed for this environment. Copy a fresh key from Resend → API Keys and redeploy.'
-  } else if (
-    code === 422 &&
-    (msg.includes('invalid `from`') || msg.includes('from` field'))
-  ) {
-    hint =
-      'CONTACT_FROM_EMAIL must look like `hello@yourdomain.com` or `Your Name <hello@yourdomain.com>` with no extra surrounding quotes in Vercel. Resend also requires that domain/sender to be verified.'
-  } else {
-    hint =
-      'Resend rejected the send. Check Vercel logs for the full Resend error (often invalid `from` / domain, or API key).'
-  }
-
-  console.error(`[contact] ${step} Resend error:`, err)
-  return NextResponse.json(
-    {
-      ok: false,
-      error:
-        step === 'ack'
-          ? 'Could not send acknowledgment'
-          : 'Could not send notification',
-      resendStatus: code,
-      resendMessage: err?.message,
-      hint,
-    },
-    { status: code === 401 || code === 403 ? 500 : 502 },
+  console.error(
+    `[contact] ${step} Resend error:`,
+    code,
+    err?.name,
+    err?.message,
   )
+  const status = code === 401 || code === 403 ? 500 : 502
+  const error =
+    step === 'ack'
+      ? 'Could not send acknowledgment'
+      : 'Could not send notification'
+  return NextResponse.json({ ok: false, error }, { status })
 }
 
 /** Strip accidental wrapping quotes from Vercel / shell paste (e.g. "\"Name <a@b>\""). */
@@ -99,16 +81,9 @@ function getEnv() {
 export async function POST(req: Request) {
   const { apiKey, from, to, replyToInbox, messageIdHost } = getEnv()
   if (!apiKey || !to) {
-    const missing: string[] = []
-    if (!apiKey) missing.push('RESEND_API_KEY')
-    if (!to) missing.push('CONTACT_TO_EMAIL')
-    console.error('[contact] missing env:', missing.join(', '))
+    console.error('[contact] missing RESEND_API_KEY or CONTACT_TO_EMAIL')
     return NextResponse.json(
-      {
-        ok: false,
-        error: 'Server not configured',
-        missing,
-      },
+      { ok: false, error: 'Server not configured' },
       { status: 500 },
     )
   }
