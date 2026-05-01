@@ -58,12 +58,12 @@ const portfolioItems: PortfolioItem[] = [
     id: 4,
     index: '04',
     title: 'And More',
-    subtitle: 'Math · Design · Writing',
-    tags: ['Mathematics', 'Design', 'Writing', 'Music'],
-    industry: ['Exploratory', 'Creative'],
+    subtitle: 'Mathematics · Theory · Rigor',
+    tags: ['Mathematics', 'Theory', 'Optimization', 'Foundations'],
+    industry: ['Mathematics', 'Research'],
     client: 'Myself',
     description:
-      'Beyond the titles — a long-standing obsession with mathematics, and side-pursuits in design, writing, and anything that sharpens the craft.',
+      'Beyond the job titles — a long-running interest in mathematics: clear reasoning, foundations, and the kind of rigor that keeps engineering and ML work honest.',
     image:
       'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=1600&h=1000&fit=crop',
   },
