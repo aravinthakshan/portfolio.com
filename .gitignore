@@ -8,6 +8,8 @@ next.user-config.*
 
 # Environment variables
 .env*.local
+# Files created by: yarn dlx vercel env pull …
+.env.vercel*
 
 # Common ignores
 node_modules
@@ -16,3 +18,4 @@ node_modules
 
 # Local reference material not part of the app
 ref/
+.vercel

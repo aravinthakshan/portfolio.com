@@ -38,10 +38,21 @@ function jsonForResendFailure(
   err: ResendErrorShape | null | undefined,
 ) {
   const code = err?.statusCode
-  const hint =
-    code === 401 || code === 403
-      ? 'RESEND_API_KEY is missing, wrong, or not allowed for this environment. Copy a fresh key from Resend → API Keys and redeploy.'
-      : 'Resend rejected the send. Check Vercel logs for the full Resend error (often invalid `from` / domain, or API key).'
+  const msg = (err?.message ?? '').toLowerCase()
+  let hint: string
+  if (code === 401 || code === 403) {
+    hint =
+      'RESEND_API_KEY is missing, wrong, or not allowed for this environment. Copy a fresh key from Resend → API Keys and redeploy.'
+  } else if (
+    code === 422 &&
+    (msg.includes('invalid `from`') || msg.includes('from` field'))
+  ) {
+    hint =
+      'CONTACT_FROM_EMAIL must look like `hello@yourdomain.com` or `Your Name <hello@yourdomain.com>` with no extra surrounding quotes in Vercel. Resend also requires that domain/sender to be verified.'
+  } else {
+    hint =
+      'Resend rejected the send. Check Vercel logs for the full Resend error (often invalid `from` / domain, or API key).'
+  }
 
   console.error(`[contact] ${step} Resend error:`, err)
   return NextResponse.json(
@@ -52,17 +63,31 @@ function jsonForResendFailure(
           ? 'Could not send acknowledgment'
           : 'Could not send notification',
       resendStatus: code,
+      resendMessage: err?.message,
       hint,
     },
     { status: code === 401 || code === 403 ? 500 : 502 },
   )
 }
 
+/** Strip accidental wrapping quotes from Vercel / shell paste (e.g. "\"Name <a@b>\""). */
+function normalizeEnvFrom(raw: string): string {
+  let s = raw.trim()
+  if (
+    (s.startsWith('"') && s.endsWith('"')) ||
+    (s.startsWith("'") && s.endsWith("'"))
+  ) {
+    s = s.slice(1, -1).trim()
+  }
+  return s
+}
+
 function getEnv() {
   const apiKey = process.env.RESEND_API_KEY?.trim() || undefined
-  const from =
+  const from = normalizeEnvFrom(
     process.env.CONTACT_FROM_EMAIL?.trim() ||
-    'aravinthakshan <onboarding@resend.dev>'
+      'aravinthakshan <onboarding@resend.dev>',
+  )
   const to = process.env.CONTACT_TO_EMAIL?.trim() || undefined
   const replyToInbox =
     process.env.CONTACT_REPLY_TO_EMAIL?.trim() || to
