@@ -17,7 +17,7 @@ export function ContactAcknowledgment({ name, message }: Props) {
       <Text style={styles.heading}>Thanks — I&apos;ve got your message.</Text>
       <Text style={styles.intro}>
         Hi {firstName}, thanks for taking the time to write. Your note is in
-        my inbox and I&apos;ll read it properly soon. I reply personally to
+        my inbox and I&apos;ll read it soon. I reply personally to
         every message and aim to get back within 24 hours (often sooner).
       </Text>
       <Text style={{ ...styles.intro, color: '#525252' }}>
